@@ -1,25 +1,44 @@
 class BST:
-    def __init__(self, keys):
+    def __init__(self, keys, c):
+        self.c    = c
         self.root = self.Node(keys[0], None)
         for i in range(1, len(keys)):
             self.insert(keys[i], self.root)
-        # Calc size for every node        
+
+        # Calc size for every node
+        self.root.calcSize(self.root)
 
     def insert(self, newKey, currNode):
+        newLeafNode = self._createLeaf(newKey, currNode)
+        if newLeafNode is None:
+            return
+
+        #self._balanceBST(newLeafNode)
+
+    def _balanceBST(self, node):
+        parentSize = node.parent.left.size + node.parent.right.size
+        if (node.parent.left.size * self.c > parentSize or
+            node.parent.right.size * self.c > parentSize):
+            #Code
+
+            return
+
+        self._balanceBST(node.parent)
+
+    def _createLeaf(self, newKey, currNode):
         if currNode.key > newKey:
             if currNode.left is None:
                 currNode.left = self.Node(newKey, currNode)
+                return currNode.left
             else:
-                self.insert(newKey, currNode.left)
+                self._createLeaf(newKey, currNode.left)
+
         elif currNode.key < newKey:
             if currNode.right is None:
                 currNode.right = self.Node(newKey, currNode)
+                return currNode.right
             else:
-                self.insert(newKey, currNode.right)
-
-    def balanceBST(self):
-        return -1
-        #code
+                self._createLeaf(newKey, currNode.right)
 
     def printTree(self, currNode = -1):
         if currNode is None:
@@ -40,25 +59,24 @@ class BST:
         self.printTree(currNode.right)
 
     class Node:
-        def __init__(self, key, parent, left = None, right = None):
+        def __init__(self, key, parent):
             self.key    = key
             self.parent = parent
-            self.left   = left
-            self.right  = right
-            self.size   = self.calcSize(self)
+            self.left   = None
+            self.right  = None
+            self.size   = 1
 
-        # NEEDS FURTHER TESTING
         def calcSize(self, node):
-            counter = 0
-        
             if node is None:
                 return 0
-
+            
+            counter = 0
             counter += self.calcSize(node.left)
             counter += self.calcSize(node.right)
-
-            return counter + 1
+            node.size = counter + 1
+            return node.size
 
 keysToSort = [10, 5, 15, 0, 20]
-tree = BST(keysToSort)
+tree = BST(keysToSort, 0.5)
+print("Input array: ", keysToSort, end='')
 tree.printTree()
