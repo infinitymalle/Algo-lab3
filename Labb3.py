@@ -1,3 +1,20 @@
+import random
+import math
+
+
+def CreateData():
+    dataset = []
+
+    for i in range(10):
+        dataset.append(random.randrange(0, 11))
+        #dataset.append(i)                          # fills the dataset with already sorted data
+        # Creates an almost sorted dataset, every tenth loop the input will be randomized
+        #if i % 10 == 0: dataset.append(random.randrange(0, 101))
+        #else: dataset.append(i)
+    #print("test", dataset)
+    return dataset
+
+
 class BST:
     def __init__(self, keys, c):
         self.c    = c
@@ -97,7 +114,7 @@ class BST:
             node.size = counter + 1
             return node.size
 
-keysToSort = [10, 5, 15, 0, 20]
+keysToSort = CreateData()
 tree = BST(keysToSort, 0.5)
 print("Input array: ", keysToSort, end='')
 tree.printTree()
