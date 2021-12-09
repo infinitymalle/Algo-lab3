@@ -40,8 +40,9 @@ class BST:
 
         self._balanceBST(node.parent)
 
-    def _createLeaf(self, newKey, currNode):
-        cSize = currNode.parent.size * self.c
+    def _createLeaf(self, newKey, currNode):            
+
+        cSize = currNode.size * self.c
         if currNode.key > newKey and currNode.left.size < cSize:
             if currNode.left is None:
                 currNode.left = self.Node(newKey, currNode)
