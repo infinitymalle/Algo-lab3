@@ -10,10 +10,8 @@ class BST:
 
     def insert(self, newKey, currNode):
         newLeafNode = self._createLeaf(newKey, currNode)
-        if newLeafNode is None:
-            return
-
-        #self._balanceBST(newLeafNode)
+        #if newLeafNode is None:
+        #    return
 
     def _balanceBST(self, node):
         parentSize = node.parent.left.size + node.parent.right.size
@@ -26,19 +24,42 @@ class BST:
         self._balanceBST(node.parent)
 
     def _createLeaf(self, newKey, currNode):
-        if currNode.key > newKey:
+        cSize = currNode.parent.size * self.c
+        if currNode.key > newKey and currNode.left.size < cSize:
             if currNode.left is None:
                 currNode.left = self.Node(newKey, currNode)
                 return currNode.left
             else:
                 self._createLeaf(newKey, currNode.left)
 
-        elif currNode.key < newKey:
+        else:
+            newNode = self.Node(newKey, currNode.parent) # Create new node, set parent
+            if currNode.parent.left.key == currNode.key: # Set currNode.parent left or right pointer to newNode
+                currNode.parent.left = newNode
+            else:
+                currNode.parent.right = newNode
+            currNode.parent = newNode # Set currNode.parent to newNode
+            newNode.left = currNode.left
+            newNode.left.parent = newNode
+            newNode.right = currNode
+
+        if currNode.key < newKey and currNode.right.size < cSize:
             if currNode.right is None:
                 currNode.right = self.Node(newKey, currNode)
                 return currNode.right
             else:
                 self._createLeaf(newKey, currNode.right)
+
+        else:
+            newNode = self.Node(newKey, currNode.parent) # Create new node, set parent
+            if currNode.parent.left.key == currNode.key: # Set currNode.parent left or right pointer to newNode
+                currNode.parent.left = newNode
+            else:
+                currNode.parent.right = newNode
+            currNode.parent = newNode # Set currNode.parent to newNode
+            newNode.right = currNode.right
+            newNode.right.parent = newNode
+            newNode.left = currNode
 
     def printTree(self, currNode = -1):
         if currNode is None:
