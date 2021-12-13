@@ -97,10 +97,14 @@ class BST:
         self.printTree(currNode.right)
     
     def balance(self, currnode):
-        if (currnode.left * c > currnode.size):
-            _rotateleft(currnode)
-        if (currnode.right * c > currnode.size):
-            _rotateRight(currnode)
+        if(currnode.parent == None):
+            return(None)
+        if (currnode.left > self.c * currnode.size):
+            self._rotateLeft(currnode)
+        if (currnode.right > self.c * currnode.size):
+            self._rotateRight(currnode)
+        
+        self.balance(currnode.parent)
 
 
     class Node:
