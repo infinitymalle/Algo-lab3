@@ -95,6 +95,13 @@ class BST:
         )
         self.printTree(currNode.left)
         self.printTree(currNode.right)
+    
+    def balance(self, currnode):
+        if (currnode.left * c > currnode.size):
+            _rotateleft(currnode)
+        if (currnode.right * c > currnode.size):
+            _rotateRight(currnode)
+
 
     class Node:
         def __init__(self, key, parent):
@@ -103,6 +110,8 @@ class BST:
             self.left   = None
             self.right  = None
             self.size   = 1
+
+    
 
 keysToSort = CreateData()
 tree = BST(keysToSort, 0.5)
