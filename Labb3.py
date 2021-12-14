@@ -106,6 +106,16 @@ class BST:
         
         self.balance(currnode.parent)
 
+    def depthSearch(self, currnode):
+        if (currnode.left == None and currnode.right == None):
+            return([currnode.key])
+
+        
+        if (currnode.left != None):
+            left = self.depthSearch(currnode.left)
+        if (currnode.right != None):
+            right = self.depthSearch(currnode.right)
+        return(left.append(currnode.key) + right)
 
     class Node:
         def __init__(self, key, parent):
