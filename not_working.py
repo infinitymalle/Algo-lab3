@@ -21,7 +21,7 @@ class BST:
 
         #self.root = self.Node(keys[0], None)
         testInserts = [11, 12, 13, 14, 15]
-        for i in range(1, len(testInserts)):
+        for i in range(len(testInserts)):
             self.insert(testInserts[i], self.root)
         
     def insert(self, newKey, currNode = None):
@@ -80,10 +80,19 @@ class BST:
         rSize = 0 if currNode.right is None else currNode.right.size
         
         if lSize > cSize or rSize > cSize:
-            sortedList = self._bSort(self._depthSearch(currNode))
-            self._buildTree(sortedList, 0, len(sortedList)-1, currNode.parent)
-            self._calcSize(currNode)
-        
+            sortedList = self._depthSearch(currNode)
+            sortedList.sort()
+            balanced_tree = self._buildTree(sortedList, 0, len(sortedList)-1, currNode.parent)
+            self._calcSize(balanced_tree)
+
+            if currNode.parent is None:
+                self.root = balanced_tree
+
+            elif currNode.parent.left.key == currNode.key:
+                currNode.parent.left = balanced_tree
+            else:
+                currNode.parent.right = balanced_tree
+
         self._balance(currNode.parent)
 
     def _depthSearch(self, currNode):
@@ -132,38 +141,6 @@ class BST:
             sortedList.insert(index, list[i])
 
         return sortedList
-
-    # x.right != None is a requirement
-    def _rotateLeft(self, x):
-        y = x.right
-        x.right = y.left
-        if y.left != None:
-            y.left.parent = x
-        y.parent = x.parent
-        if x.parent == None:
-            self.root = y
-        elif x == x.parent.left:
-            x.parent.left = y
-        else:
-            x.parent.right = y
-            y.left = x
-            x.parent = y
-
-    # x.left != None is a requirement
-    def _rotateRight(self, x):
-        y = x.left
-        x.left = y.right
-        if y.right != None:
-            y.right.parent = x
-        y.parent = x.parent
-        if x.parent == None:
-            self.root = y
-        elif x == x.parent.right:
-            x.parent.right = y
-        else:
-            x.parent.left = y
-            y.right = x
-            x.parent = y
 
     def printTree(self, currNode = -1):
         if currNode is None:
