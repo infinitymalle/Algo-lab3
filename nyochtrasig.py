@@ -1,11 +1,12 @@
 import random
+import cProfile
 
 def CreateData():
     dataset = []
 
-    for i in range(20):
-        dataset.append(random.randrange(0, 20))
-        #dataset.append(i)                          # fills the dataset with already sorted data
+    for i in range(1000):
+        #dataset.append(random.randrange(0, 1001))
+        dataset.append(i)                          # fills the dataset with already sorted data
         # Creates an almost sorted dataset, every tenth loop the input will be randomized
         #if i % 10 == 0: dataset.append(random.randrange(0, 101))
         #else: dataset.append(i)
@@ -184,12 +185,23 @@ class BST:
             self.right  = None
             self.size   = 1
 
+
+
+#keysToSort = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    
+def test(keys, rootkey, c):
+    tree = BST(rootkey, c)
+    #print("Input array: ", keys, end='')
+    for i in range(len(keys)):
+        tree.insert(keys[i], tree.root)
+    #tree.printTree()
 keys = CreateData()
 rootkey = keys[0]
 keys.pop(0)
-#keysToSort = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-tree = BST(rootkey, 0.51)
-print("Input array: ", keys, end='')
-for i in range(len(keys)):
-    tree.insert(keys[i], tree.root)
-tree.printTree()
+
+#cProfile.run('test(keys, rootkey, 0.51)')
+#cProfile.run('test(keys, rootkey, 0.6)')
+#cProfile.run('test(keys, rootkey, 0.7)')
+#cProfile.run('test(keys, rootkey, 0.8)')
+#cProfile.run('test(keys, rootkey, 0.9)')
+cProfile.run('test(keys, rootkey, 0.99)')
