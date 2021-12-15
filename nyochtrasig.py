@@ -81,21 +81,19 @@ class BST:
         rSize = 0 if currNode.right is None else currNode.right.size
         
         if lSize > cSize or rSize > cSize:
-            #sortedList = []
-            sortedList = self._depthSearch(currNode)
-            #sortedList.sort()
-            sortedList = self._bSort(sortedList)
-            #sortedList = self._printInorder(currNode, sortedList)
+            sortedList = self._bSort(self._depthSearch(currNode))
             balanced_tree = self._buildTree(sortedList, 0, len(sortedList)-1, currNode.parent)
             self._calcSize(balanced_tree)
 
             if currNode.parent is None:
                 self.root = balanced_tree
 
-            elif currNode.parent.left.key == currNode.key:
-                currNode.parent.left = balanced_tree
-            else:
-                currNode.parent.right = balanced_tree
+            elif currNode.parent.left is not None:
+                if currNode.parent.left.key == currNode.key:
+                    currNode.parent.left = balanced_tree
+            elif currNode.parent.right is not None:
+                if currNode.parent.right.key == currNode.key:
+                    currNode.parent.right = balanced_tree
 
         self._balance(currNode.parent)
 
@@ -116,6 +114,8 @@ class BST:
     # Assumes sorted list of integers
     def _binSrc(self, query, list, L_i, R_i):
         # Initial checks: Checks for empty lists and if query is within list range
+        if query > list[0] and len(list) == 1:
+            return 1
         if R_i < 1:
             return -1
         if query < list[0]:
