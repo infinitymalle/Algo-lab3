@@ -1,6 +1,4 @@
 import random
-import math
-
 
 def CreateData():
     dataset = []
@@ -15,68 +13,136 @@ def CreateData():
     return dataset
 
 class BST:
+    # keys needs to be sorted
     def __init__(self, keys, c):
         self.c    = c
-        self.root = self.Node(keys[0], None)
-        for i in range(1, len(keys)):
-            self.insert(keys[i], self.root)
+        self.root = self._buildTree(keys, 0, len(keys)-1)
+        #self._calcSize(self.root)
+        #self._isPerfect(self.root, self._calculateDepth(self.root))
 
-        # Calc size for every node
-        self.calcSize(self.root)
+        #testInserts = [11, 12, 13, 14, 15]
+        #for i in range(len(testInserts)):
+        #    self.insert(testInserts[i], self.root)
+        
+    def insert(self, newKey, currNode = None):
+        if currNode is None:
+            currNode = self.root
 
-    def calcSize(self, node):
+        if currNode.key > newKey:
+            if currNode.left is None:
+                currNode.left = self.Node(newKey, currNode)
+                self._incSize(currNode.left)
+                self._balance(currNode)
+            else:
+                self.insert(newKey, currNode.left)
+
+        elif currNode.key < newKey:
+            if currNode.right is None:
+                currNode.right = self.Node(newKey, currNode)
+                self._incSize(currNode.right)
+                self._balance(currNode)
+            else:
+                self.insert(newKey, currNode.right)
+
+    def _buildTree(self, sortedList, left_i, right_i, parent = None):
+        if left_i > right_i:
+            return None
+
+        mid_i = (left_i + right_i) // 2
+        root = self.Node(sortedList[mid_i], parent)
+        root.left = self._buildTree(sortedList, left_i, mid_i-1, root)
+        root.right = self._buildTree(sortedList, mid_i+1, right_i, root)
+        return root
+
+    def _calcSize(self, node):
         if node is None:
             return 0
         
         counter = 0
-        counter += self.calcSize(node.left)
-        counter += self.calcSize(node.right)
+        counter += self._calcSize(node.left)
+        counter += self._calcSize(node.right)
         node.size = counter + 1
         return node.size
+
+    def _incSize(self, node):
+        if node.parent is None:
+            return
         
-    def insert(self, newKey, currNode):
+        node.parent.size += 1
+        self._incSize(node.parent)
+
+    def _balance(self, currNode):
+        if currNode is None:
+            return
+
         cSize = currNode.size * self.c
-        if currNode.key > newKey and currNode.left.size < cSize:
-            if currNode.left is None:
-                currNode.left = self.Node(newKey, currNode)
-                return currNode.left
+        lSize = 0 if currNode.left is None else currNode.left.size
+        rSize = 0 if currNode.right is None else currNode.right.size
+        
+        if lSize > cSize or rSize > cSize:
+            sortedList = self._depthSearch(currNode)
+            sortedList.sort()
+            balanced_tree = self._buildTree(sortedList, 0, len(sortedList)-1, currNode.parent)
+            self._calcSize(balanced_tree)
+
+            if currNode.parent is None:
+                self.root = balanced_tree
+
+            elif currNode.parent.left.key == currNode.key:
+                currNode.parent.left = balanced_tree
             else:
-                self.insert(newKey, currNode.left)
+                currNode.parent.right = balanced_tree
+
+        self._balance(currNode.parent)
+
+    def _depthSearch(self, currNode):
+        if (currNode.left is None and currNode.right is None):
+            return [currNode.key]
+
+        left  = []
+        right = []
+        if (currNode.left != None):
+            left = self._depthSearch(currNode.left)
+
+        if (currNode.right != None):
+            right = self._depthSearch(currNode.right)
+
+        return left + [currNode.key] + right
+
+    # Assumes sorted list of integers
+    def _binSrc(self, query, list, L_i, R_i):
+        # Initial checks: Checks for empty lists and if query is within list range
+        if query > list[0] and len(list) == 1:
+            return 1
+        if R_i < 1:
+            return -1
+        if query < list[0]:
+            return 0
+        if query > list[R_i]:
+            return R_i + 1
+
+        middle_i = (L_i + R_i) // 2
+
+        # Base case
+        if list[middle_i] == query or R_i - L_i == 1:
+            return middle_i + 1
+
+        elif list[middle_i] > query:
+            return self._binSrc(query, list, L_i, middle_i)
 
         else:
-            self._rotateLeft(newKey, currNode)
+            return self._binSrc(query, list, middle_i, R_i)
 
-        if currNode.key < newKey and currNode.right.size < cSize:
-            if currNode.right is None:
-                currNode.right = self.Node(newKey, currNode)
-                return currNode.right
-            else:
-                self.insert(newKey, currNode.right)
+    def _bSort(self, list):
+        if len(list) < 2:
+            return list
 
-        else:
-            self._rotateRight(newKey, currNode)
-            
-    def _rotateLeft(self, newKey, currNode):
-        newNode = self.Node(newKey, currNode.parent)
-        if currNode.parent.left.key == currNode.key:
-            currNode.parent.left = newNode
-        else:
-            currNode.parent.right = newNode
-        currNode.parent = newNode
-        newNode.left = currNode.left
-        newNode.left.parent = newNode
-        newNode.right = currNode
+        sortedList = [list[0]]
+        for i in range(1, len(list)):
+            index = self._binSrc(list[i], sortedList, 0, len(sortedList)-1)
+            sortedList.insert(index, list[i])
 
-    def _rotateRight(self, newKey, currNode):
-        newNode = self.Node(newKey, currNode.parent)
-        if currNode.parent.left.key == currNode.key:
-            currNode.parent.left = newNode
-        else:
-            currNode.parent.right = newNode
-        currNode.parent = newNode
-        newNode.right = currNode.right
-        newNode.right.parent = newNode
-        newNode.left = currNode
+        return sortedList
 
     def printTree(self, currNode = -1):
         if currNode is None:
@@ -95,27 +161,6 @@ class BST:
         )
         self.printTree(currNode.left)
         self.printTree(currNode.right)
-    
-    def balance(self, currnode):
-        if(currnode.parent == None):
-            return(None)
-        if (currnode.left > self.c * currnode.size):
-            self._rotateLeft(currnode)
-        if (currnode.right > self.c * currnode.size):
-            self._rotateRight(currnode)
-        
-        self.balance(currnode.parent)
-
-    def depthSearch(self, currnode):
-        if (currnode.left == None and currnode.right == None):
-            return([currnode.key])
-
-        
-        if (currnode.left != None):
-            left = self.depthSearch(currnode.left)
-        if (currnode.right != None):
-            right = self.depthSearch(currnode.right)
-        return(left.append(currnode.key) + right)
 
     class Node:
         def __init__(self, key, parent):
@@ -125,9 +170,9 @@ class BST:
             self.right  = None
             self.size   = 1
 
-    
-
 keysToSort = CreateData()
-tree = BST(keysToSort, 0.5)
+#keysToSort = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+tree = BST(keysToSort, 0.51)
+tree._bSort(keysToSort)
 print("Input array: ", keysToSort, end='')
 tree.printTree()
