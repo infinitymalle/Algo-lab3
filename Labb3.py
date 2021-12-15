@@ -1,11 +1,12 @@
 import random
+import cProfile
 
 def CreateData():
     dataset = []
 
-    for i in range(10):
-        dataset.append(random.randrange(0, 11))
-        #dataset.append(i)                          # fills the dataset with already sorted data
+    for i in range(1000):
+        #dataset.append(random.randrange(0, 1001))
+        dataset.append(i)                          # fills the dataset with already sorted data
         # Creates an almost sorted dataset, every tenth loop the input will be randomized
         #if i % 10 == 0: dataset.append(random.randrange(0, 101))
         #else: dataset.append(i)
@@ -14,21 +15,22 @@ def CreateData():
 
 class BST:
     # keys needs to be sorted
-    def __init__(self, keys, c):
+    def __init__(self, root, c):
         self.c    = c
-        self.root = self._buildTree(keys, 0, len(keys)-1)
-        #self._calcSize(self.root)
-        #self._isPerfect(self.root, self._calculateDepth(self.root))
+        self.root = self.Node(root, None)
 
+
+        #self.root = self._buildTree(keys, 0, len(keys)-1)
+        #self._calcSize(self.root)
+
+        #self.root = self.Node(keys[0], None)
         #testInserts = [11, 12, 13, 14, 15]
-        #for i in range(len(testInserts)):
-        #    self.insert(testInserts[i], self.root)
         
     def insert(self, newKey, currNode = None):
         if currNode is None:
             currNode = self.root
 
-        if currNode.key > newKey:
+        if currNode.key >= newKey:
             if currNode.left is None:
                 currNode.left = self.Node(newKey, currNode)
                 self._incSize(currNode.left)
@@ -80,18 +82,19 @@ class BST:
         rSize = 0 if currNode.right is None else currNode.right.size
         
         if lSize > cSize or rSize > cSize:
-            sortedList = self._depthSearch(currNode)
-            sortedList.sort()
+            sortedList = self._bSort(self._depthSearch(currNode))
             balanced_tree = self._buildTree(sortedList, 0, len(sortedList)-1, currNode.parent)
             self._calcSize(balanced_tree)
 
             if currNode.parent is None:
                 self.root = balanced_tree
 
-            elif currNode.parent.left.key == currNode.key:
-                currNode.parent.left = balanced_tree
-            else:
-                currNode.parent.right = balanced_tree
+            elif currNode.parent.left is not None:
+                if currNode.parent.left.key == currNode.key:
+                    currNode.parent.left = balanced_tree
+            elif currNode.parent.right is not None:
+                if currNode.parent.right.key == currNode.key:
+                    currNode.parent.right = balanced_tree
 
         self._balance(currNode.parent)
 
@@ -144,6 +147,18 @@ class BST:
 
         return sortedList
 
+#    def _printInorder(self, root, lst):
+# 
+#        if (root != None):
+#            self._printInorder(root.left, lst)
+#    
+#            # then print the data of node
+#            lst.append(root.key)
+#    
+#            # now recur on right child
+#            self._printInorder(root.right, lst)
+#        return(lst)
+#
     def printTree(self, currNode = -1):
         if currNode is None:
             return 0
@@ -170,9 +185,23 @@ class BST:
             self.right  = None
             self.size   = 1
 
-keysToSort = CreateData()
+
+
 #keysToSort = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-tree = BST(keysToSort, 0.51)
-tree._bSort(keysToSort)
-print("Input array: ", keysToSort, end='')
-tree.printTree()
+    
+def test(keys, rootkey, c):
+    tree = BST(rootkey, c)
+    #print("Input array: ", keys, end='')
+    for i in range(len(keys)):
+        tree.insert(keys[i], tree.root)
+    #tree.printTree()
+keys = CreateData()
+rootkey = keys[0]
+keys.pop(0)
+
+#cProfile.run('test(keys, rootkey, 0.51)')
+#cProfile.run('test(keys, rootkey, 0.6)')
+#cProfile.run('test(keys, rootkey, 0.7)')
+#cProfile.run('test(keys, rootkey, 0.8)')
+#cProfile.run('test(keys, rootkey, 0.9)')
+cProfile.run('test(keys, rootkey, 0.99)')
