@@ -3,9 +3,9 @@ import random
 def CreateData():
     dataset = []
 
-    for i in range(10):
-        dataset.append(random.randrange(0, 11))
-        #dataset.append(i)                          # fills the dataset with already sorted data
+    for i in range(1):
+        #dataset.append(random.randrange(0, 21))
+        dataset.append(i)                          # fills the dataset with already sorted data
         # Creates an almost sorted dataset, every tenth loop the input will be randomized
         #if i % 10 == 0: dataset.append(random.randrange(0, 101))
         #else: dataset.append(i)
@@ -19,8 +19,10 @@ class BST:
         self.root = self._buildTree(keys, 0, len(keys)-1)
         self._calcSize(self.root)
 
-        #self.root = self.Node(keys[0], None)
-        testInserts = [11, 12, 13, 14, 15]
+        testInserts = []
+        for i in range(1, 5):
+            testInserts.append(random.randrange(0, 11))
+            
         for i in range(len(testInserts)):
             self.insert(testInserts[i], self.root)
         
@@ -28,7 +30,7 @@ class BST:
         if currNode is None:
             currNode = self.root
 
-        if currNode.key > newKey:
+        if currNode.key >= newKey:
             if currNode.left is None:
                 currNode.left = self.Node(newKey, currNode)
                 self._incSize(currNode.left)
@@ -80,18 +82,19 @@ class BST:
         rSize = 0 if currNode.right is None else currNode.right.size
         
         if lSize > cSize or rSize > cSize:
-            sortedList = self._depthSearch(currNode)
-            sortedList.sort()
+            sortedList = self._bSort(self._depthSearch(currNode))
             balanced_tree = self._buildTree(sortedList, 0, len(sortedList)-1, currNode.parent)
             self._calcSize(balanced_tree)
 
             if currNode.parent is None:
                 self.root = balanced_tree
 
-            elif currNode.parent.left.key == currNode.key:
-                currNode.parent.left = balanced_tree
-            else:
-                currNode.parent.right = balanced_tree
+            elif currNode.parent.left is not None:
+                if currNode.parent.left.key == currNode.key:
+                    currNode.parent.left = balanced_tree
+            elif currNode.parent.right is not None:
+                if currNode.parent.right.key == currNode.key:
+                    currNode.parent.right = balanced_tree
 
         self._balance(currNode.parent)
 
@@ -112,6 +115,8 @@ class BST:
     # Assumes sorted list of integers
     def _binSrc(self, query, list, L_i, R_i):
         # Initial checks: Checks for empty lists and if query is within list range
+        if query > list[0] and len(list) == 1:
+            return 1
         if R_i < 1:
             return -1
         if query < list[0]:
@@ -168,8 +173,7 @@ class BST:
             self.right  = None
             self.size   = 1
 
-#keysToSort = CreateData()
-keysToSort = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+keysToSort = CreateData()
 tree = BST(keysToSort, 0.51)
 print("Input array: ", keysToSort, end='')
 tree.printTree()
