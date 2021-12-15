@@ -14,11 +14,9 @@ def CreateData():
     return dataset
 
 class BST:
-    # keys needs to be sorted
     def __init__(self, root, c):
         self.c    = c
         self.root = self.Node(root, None)
-
 
         #self.root = self._buildTree(keys, 0, len(keys)-1)
         #self._calcSize(self.root)
@@ -30,13 +28,13 @@ class BST:
         if currNode is None:
             currNode = self.root
 
-        if currNode.key >= newKey:
-            if currNode.left is None:
-                currNode.left = self.Node(newKey, currNode)
-                self._incSize(currNode.left)
-                self._balance(currNode)
+        if currNode.key >= newKey:                          # Kollar om nya värdet ska till höger eller vänster om currentnode
+            if currNode.left is None:                       # Kollar om noden är ledig 
+                currNode.left = self.Node(newKey, currNode) # Lägger in en ny nod
+                self._incSize(currNode.left)                # Ökar noderna size på alla noder längs sökvägens med 1
+                self._balance(currNode)                     # Kollar om det behöver balanseras längs sökvägen
             else:
-                self.insert(newKey, currNode.left)
+                self.insert(newKey, currNode.left)          # Om noden var upptagen anropar igen en ner
 
         elif currNode.key < newKey:
             if currNode.right is None:
@@ -46,8 +44,8 @@ class BST:
             else:
                 self.insert(newKey, currNode.right)
 
-    def _buildTree(self, sortedList, left_i, right_i, parent = None):
-        if left_i > right_i:
+    def _buildTree(self, sortedList, left_i, right_i, parent = None):   # bygger om trädet från noden till ett prefekt balanserat träd
+        if left_i > right_i:                                            # Listan måste vara sorterad
             return None
 
         mid_i = (left_i + right_i) // 2
@@ -56,7 +54,7 @@ class BST:
         root.right = self._buildTree(sortedList, mid_i+1, right_i, root)
         return root
 
-    def _calcSize(self, node):
+    def _calcSize(self, node):                  # Beräknar storleken på noden
         if node is None:
             return 0
         
@@ -66,26 +64,31 @@ class BST:
         node.size = counter + 1
         return node.size
 
-    def _incSize(self, node):
+    def _incSize(self, node):                   # Ökar noderna size på alla noder längs sökvägens med 1
         if node.parent is None:
             return
         
         node.parent.size += 1
         self._incSize(node.parent)
 
-    def _balance(self, currNode):
+# Check balance of given (sub)tree with respect to c, uses a bottom-up approach
+    def _balance(self, currNode):     
+        # When tree root has been reached          
         if currNode is None:
             return
-
+        #currNode = local root
         cSize = currNode.size * self.c
         lSize = 0 if currNode.left is None else currNode.left.size
         rSize = 0 if currNode.right is None else currNode.right.size
         
+        # Check if re-balancing is needed
         if lSize > cSize or rSize > cSize:
+            # Create new perfect balanced BST
             sortedList = self._bSort(self._depthSearch(currNode))
             balanced_tree = self._buildTree(sortedList, 0, len(sortedList)-1, currNode.parent)
             self._calcSize(balanced_tree)
 
+            # Replace existing (sub)tree with new tree
             if currNode.parent is None:
                 self.root = balanced_tree
 
@@ -98,19 +101,19 @@ class BST:
 
         self._balance(currNode.parent)
 
-    def _depthSearch(self, currNode):
-        if (currNode.left is None and currNode.right is None):
+    def _depthSearch(self, currNode):                           # Retunerar en lista med alla keys från en viss nod och under den
+        if (currNode.left is None and currNode.right is None):  # Kollar om den nått ett löv
             return [currNode.key]
 
         left  = []
         right = []
-        if (currNode.left != None):
+        if (currNode.left != None):                             # Kollar om något är i lövet 
             left = self._depthSearch(currNode.left)
 
         if (currNode.right != None):
             right = self._depthSearch(currNode.right)
 
-        return left + [currNode.key] + right
+        return left + [currNode.key] + right                    # Allt som är till vänster om noden + noden själv + allt till höger
 
     # Assumes sorted list of integers
     def _binSrc(self, query, list, L_i, R_i):
@@ -195,11 +198,12 @@ def test(keys, rootkey, c):
     for i in range(len(keys)):
         tree.insert(keys[i], tree.root)
     #tree.printTree()
+
 keys = CreateData()
 rootkey = keys[0]
 keys.pop(0)
 
-#cProfile.run('test(keys, rootkey, 0.51)')
+#cProfile.run('test(keys, rootkey, 0.51)')      #tester
 #cProfile.run('test(keys, rootkey, 0.6)')
 #cProfile.run('test(keys, rootkey, 0.7)')
 #cProfile.run('test(keys, rootkey, 0.8)')
